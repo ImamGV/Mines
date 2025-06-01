@@ -1,10 +1,20 @@
-local Flux = loadstring(game:HttpGet"https://raw.githubusercontent.com/dawid-scripts/UI-Libs/main/fluxlib.txt")()
-local Window = Flux:Window("YOUHUB", "Mines", Color3.fromRGB(0,255,225), Enum.KeyCode.LeftControl)
-local Tab = Window:Tab("Main", "http://www.roblox.com/asset/?id=6023426915")
-Tab:Toggle("Auto Collects Items", "Automatically collects items for you!", function(v)
-_G.AutoCollect = v
+local Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/cypherdh/VanisUILIB/main/.gitignore'))()
+local Window = Library:CreateWindow("⛏️ Mines [🧨]", "v0.0.1", 10044538000)
+local Tabs = {
+Main = Window:CreateTab("Main"),
+Players = Window:CreateTab("Players"),
+Teleport = Window:CreateTab("Teleport")
+}
+--// Farm \\
+local Farm = Tabs.Main:CreateFrame("Farm")
+Farm:CreateLabel("Coming soon..")
+--// Misc \\
+local Misc = Tabs.Main:CreateFrame("Misc")
+Misc:CreateLabel("Bring Ores")
+Misc:CreateToggle("Auto Bring Ores", "Automatically bring ores for you!", function(v)
+_G.AutoCollectOres = v
 game:GetService("RunService").RenderStepped:Connect(function()
-if _G.AutoCollect then
+if _G.AutoCollectOres then
 for _,v in ipairs(workspace.Items:GetDescendants()) do
 if v:IsA("BasePart") then
 v.CFrame = game.Players.LocalPlayer.Character.Head.CFrame
@@ -13,15 +23,15 @@ end
 end
 end)
 end)
-Tab:Button("Bring All (Must have)", "Collects items button!", function()
+Misc:CreateButton("🖱️ Bring Ores", "Bring ores button!", function()
 for _,v in ipairs(workspace.Items:GetDescendants()) do
 if v:IsA("BasePart") then
 v.CFrame = game.Players.LocalPlayer.Character.Head.CFrame
 end
 end
 end)
-Tab:Line()
-Tab:Toggle("Auto Sell Inventory (Near)", "Automatically sell mines items for you!", function(v)
+Misc:CreateLabel("Sell Ores")
+Misc:CreateToggle("Auto Sell Inventory (Nearest)", "Automatically sell ores for you!", function(v)
 _G.AutoSell = v
 game:GetService("RunService").RenderStepped:Connect(function()
 if _G.AutoSell then
@@ -30,65 +40,122 @@ Event:FireServer()
 end
 end)
 end)
-Tab:Button("Sell Inventory (Near)", "Sell mines items button!", function()
+Misc:CreateButton("🖱️ Sell Inventory (Near)", "Sell ores button!", function()
 local Event = game:GetService("ReplicatedStorage").Ml.SellInventory
 Event:FireServer()
 end)
-Tab:Line()
-Tab:Toggle("Auto Mines (Up)", "Automatically mines up for you!", function(v)
-_G.AutoMinesUp = v
+Misc:CreateLabel("Mines")
+Misc:CreateToggle("Auto Mines", "Automatically mines up for you!", function(v)
+_G.AutoMines = v
 game:GetService("RunService").RenderStepped:Connect(function()
-if _G.AutoMinesUp then
+if _G.AutoMines then
 local Event = game:GetService("ReplicatedStorage")["shared/network/MiningNetwork@GlobalMiningEvents"].Mine
 Event:FireServer(table.unpack({
-    Vector3.new(0, 10, 0),
-    0.8
+    Vector3.new(-1, -7.5, 1),
+    1
 }))
 end
 end)
 end)
-Tab:Toggle("Auto Mines (Around)", "Automatically mines around for you!", function(v)
-_G.AutoMinesAround = v
+local LocalPlayer = Tabs.Players:CreateFrame("LocalPlayer")
+LocalPlayer:CreateLabel("Players")
+LocalPlayer:CreateSlider("Speed", 16, 120,function(v)
+_G.SetSpeed = v
+end)
+LocalPlayer:CreateToggle("Enabled Speed", "Speed for you!", function(v)
+_G.Speed = v
 game:GetService("RunService").RenderStepped:Connect(function()
-if _G.AutoMinesAround then
-local Event = game:GetService("ReplicatedStorage")["shared/network/MiningNetwork@GlobalMiningEvents"].Mine
-Event:FireServer(table.unpack({
-    Vector3.new(-2, 0, -2),
-    0.8
-}))
+if _G.Speed then
+game.Players.LocalPlayer.Character.Humanoid.WalkSpeed = _G.SetSpeed or 16
 end
 end)
 end)
-Tab:Toggle("Auto Mines (Down)", "Automatically mines down for you!", function(v)
-_G.AutoMinesDown = v
+LocalPlayer:CreateSlider("JumpPower", 50, 120,function(v)
+_G.SetJumpPower = v
+end)
+LocalPlayer:CreateToggle("Enabled JumpPower", "Jump boost for you!", function(v)
+_G.JumpPower = v
 game:GetService("RunService").RenderStepped:Connect(function()
-if _G.AutoMinesDown then
-local Event = game:GetService("ReplicatedStorage")["shared/network/MiningNetwork@GlobalMiningEvents"].Mine
-Event:FireServer(table.unpack({
-    Vector3.new(0, -10, 0),
-    0.8
-}))
+if _G.JumpPower then
+game.Players.LocalPlayer.Character.Humanoid.JumpPower = _G.SetSpeed or 50
 end
 end)
 end)
-Tab:Button("Mine Up", "Mine up button!", function()
-local Event = game:GetService("ReplicatedStorage")["shared/network/MiningNetwork@GlobalMiningEvents"].Mine
-Event:FireServer(table.unpack({
-    Vector3.new(0, 10, 0),
-    0.8
-}))
+LocalPlayer:CreateSlider("Fly Speed", 16, 120,function(v)
+_G.SetSpeedFly = v
 end)
-Tab:Button("Mine Around", "Mine around button!", function()
-local Event = game:GetService("ReplicatedStorage")["shared/network/MiningNetwork@GlobalMiningEvents"].Mine
-Event:FireServer(table.unpack({
-    Vector3.new(-2, 0, -2),
-    0.8
-}))
+_G.SetSpeedFly = 16
+LocalPlayer:CreateToggle("Enabled Fly", "Fly for you!", function(v)
+_G.StartFly = v
+if _G.StartFly == false then
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("GyroHandler") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler:Destroy()
+game.Players.LocalPlayer.Character.HumanoidRootPart.GyroHandler:Destroy()
+game.Players.LocalPlayer.Character.Humanoid.PlatformStand = false
+end
+end
+while _G.StartFly do
+if game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("GyroHandler") then
+game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.MaxForce = Vector3.new(9e9,9e9,9e9)
+game.Players.LocalPlayer.Character.HumanoidRootPart.GyroHandler.MaxTorque = Vector3.new(9e9,9e9,9e9)
+game.Players.LocalPlayer.Character.Humanoid.PlatformStand = true
+game.Players.LocalPlayer.Character.HumanoidRootPart.GyroHandler.CFrame = Workspace.CurrentCamera.CoordinateFrame
+game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity = Vector3.new()
+if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X > 0 then
+game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity + game.Workspace.CurrentCamera.CFrame.RightVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X * _G.SetSpeedFly)
+end
+if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X < 0 then
+game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity + game.Workspace.CurrentCamera.CFrame.RightVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().X * _G.SetSpeedFly)
+end
+if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z > 0 then
+game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity - game.Workspace.CurrentCamera.CFrame.LookVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z * _G.SetSpeedFly)
+end
+if require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z < 0 then
+game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity = game.Players.LocalPlayer.Character.HumanoidRootPart.VelocityHandler.Velocity - game.Workspace.CurrentCamera.CFrame.LookVector * (require(game.Players.LocalPlayer.PlayerScripts:WaitForChild("PlayerModule"):WaitForChild("ControlModule")):GetMoveVector().Z * _G.SetSpeedFly)
+end
+elseif game.Players.LocalPlayer.Character and game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid") and game.Players.LocalPlayer.Character.Humanoid.RootPart and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("VelocityHandler") == nil and game.Players.LocalPlayer.Character.HumanoidRootPart:FindFirstChild("GyroHandler") == nil then
+local bv = Instance.new("BodyVelocity")
+local bg = Instance.new("BodyGyro")
+
+bv.Name = "VelocityHandler"
+bv.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+bv.MaxForce = Vector3.new(0,0,0)
+bv.Velocity = Vector3.new(0,0,0)
+
+bg.Name = "GyroHandler"
+bg.Parent = game.Players.LocalPlayer.Character.HumanoidRootPart
+bg.MaxTorque = Vector3.new(0,0,0)
+bg.P = 1000
+bg.D = 50
+end
+task.wait()
+end
 end)
-Tab:Button("Mine Down", "Mine down button!", function()
-local Event = game:GetService("ReplicatedStorage")["shared/network/MiningNetwork@GlobalMiningEvents"].Mine
-Event:FireServer(table.unpack({
-    Vector3.new(0, -10, 0),
-    0.8
-}))
+LocalPlayer:CreateSlider("Field Of View", 70, 120,function(v)
+_G.SetFOV = v
+end)
+LocalPlayer:CreateToggle("Enabled Field Of View", "Zoom camera for you!", function(v)
+_G.FOV = v
+game:GetService("RunService").RenderStepped:Connect(function()
+if _G.FOV then
+workspace.Camera.FieldOfView = _G.SetFOV or 70
+end
+end)
+end)
+local Zone = Tabs.Teleport:CreateFrame("Zone")
+Zone:CreateLabel("Teleport a zone")
+function TP(pos)
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(pos)
+end
+Zone:CreateButton("🖱️ Teleport to Lobby", "Teleport lobby button!", function()
+TP(998.320068359375, 244.99998474121094, -67.1974868774414)
+end)
+Zone:CreateButton("🖱️ Teleport to Mine (World 1)", "Teleport mine world one button!", function()
+TP(998.320068359375, 244.99998474121094, -67.1974868774414)
+end)
+Zone:CreateButton("🖱️ Teleport to Mine (World 2)", "Teleport mine world two button!", function()
+TP(1021.1620483398438, 180.86477661132812, -1456.358642578125)
+end)
+Zone:CreateButton("🖱️ Teleport to Mine (World 3)", "Teleport mine world three button!", function()
+TP(1012.02734375, 176.99996948242188, -2922.68212890625)
 end)
